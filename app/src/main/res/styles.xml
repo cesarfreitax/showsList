@@ -1,0 +1,260 @@
+<resources>
+
+    <!-- Fast SplashScreen -->
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:popupMenuStyle">@style/customListPopUp</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/customListPopUp</item>
+        <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
+    </style>
+
+    <style name="MyDatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:datePickerStyle">@style/MyDatePickerStyle</item>
+    </style>
+
+    <style name="MyDatePickerStyle" parent="@android:style/Widget.Material.Light.DatePicker">
+        <item name="android:headerBackground">@color/colorAccent</item>
+        <item name="android:dayOfWeekTextAppearance">@color/black</item>
+    </style>
+
+
+    <style name="customListPopUp" parent="android:Widget.Holo.ListPopupWindow">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textAppearanceButton">@color/colorPrimaryDark</item>
+    </style>
+
+
+    <!-- No Action Bar -->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorControlNormal">@color/primaryText</item>
+        <item name="android:textColorPrimary">@color/secondaryText</item>
+    </style>
+
+    <!-- All transparent -->
+    <style name="AppTheme.TransAll" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!--
+    <style name="AppTheme.Toolbar" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryColorDark</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.StatusTranslucent" parent="AppTheme.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+    -->
+
+    <!-- Fragment Dialog -->
+    <style name="ProgressDialogFragment" parent="Base.Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <!-- Dialog -->
+    <style name="DialogCustomTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/cardview</item>
+        <item name="android:textColorPrimary">@color/primaryText</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--Full Screen Dialog-->
+    <style name="FullScreenDialogTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <!-- Bottom Sheet Dialog -->
+    <style name="BottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <!-- BottomNavigation View -->
+    <style name="BottomNavigation" parent="Widget.Design.BottomNavigationView">
+        <item name="android:background">@color/cardview</item>
+        <item name="itemIconTint">@color/bottom_menu_item</item>
+        <item name="itemTextColor">@color/bottom_menu_item</item>
+    </style>
+
+    <!-- TextField Style -->
+    <style name="ErrorText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#ff0000</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+    </style>
+
+    <style name="ErrorTextSmall" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#ff0000</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+    </style>
+
+    <style name="HintText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/edittext</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+    </style>
+
+    <style name="HintTextSmall" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/edittext</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+    </style>
+
+    <style name="TextInputLayoutAppearance" parent="Widget.Design.TextInputLayout">
+        <!-- reference our hint & error styles -->
+        <item name="hintTextAppearance">@style/HintText</item>
+        <item name="errorTextAppearance">@style/ErrorText</item>
+        <item name="android:textColor">@color/edittext</item>
+        <item name="android:textColorHint">@color/edittext</item>
+        <item name="colorControlHighlight">@color/edittext</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:padding">5dp</item>
+
+        <!-- Floating label in true state -->
+        <item name="colorAccent">@color/primaryText</item>
+        <item name="colorControlNormal">@color/edittext</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+    </style>
+
+    <style name="SearchView" parent="Widget.Design.TextInputLayout">
+        <!-- reference our hint & error styles -->
+        <item name="hintTextAppearance">@style/HintText</item>
+        <item name="errorTextAppearance">@style/ErrorText</item>
+        <item name="android:textColor">@color/edittext</item>
+        <item name="android:textColorHint">@color/neutral12</item>
+        <item name="colorControlHighlight">@color/edittext</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textColorPrimary">@color/primaryText</item>
+
+        <!-- Floating label in true state -->
+        <item name="colorAccent">@color/primaryText</item>
+        <item name="colorControlNormal">@color/edittext</item>
+    </style>
+
+    <!-- TabLayout -->
+    <style name="TabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabMode">scrollable</item>
+        <item name="tabIndicatorColor">?attr/colorAccent</item>
+        <item name="tabIndicatorHeight">3dp</item>
+        <item name="tabPaddingStart">12dp</item>
+        <item name="tabPaddingEnd">12dp</item>
+        <item name="tabBackground">?attr/selectableItemBackground</item>
+        <item name="tabTextAppearance">@style/TabTextAppearance</item>
+        <item name="tabSelectedTextColor">?android:textColorPrimary</item>
+        <item name="tabTextColor">@color/primaryText</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="fontFamily">@font/montserrat</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textAlignment">center</item>
+        <item name="tabIndicatorColor">@color/button</item>
+        <item name="tabTextColor">@color/primaryText</item>
+    </style>
+
+    <style name="TabText" parent="TabTextAppearance">
+        <item name="fontFamily">@font/montserrat</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TabTextRegular" parent="TabTextAppearance">
+        <item name="fontFamily">@font/montserrat</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Circle Image -->
+    <declare-styleable name="CircleImageView">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_fill_color" format="color" />
+        <attr name="civ_circle_background_color" format="color" />
+    </declare-styleable>
+
+    <!-- Material Button -->
+    <style name="MaterialButtonDefaultStyle" parent="Widget.AppCompat.Button">
+        <item name="android:padding">20dp</item>
+        <item name="android:background">@drawable/background_button_shape</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:textColor">@color/primaryText</item>
+    </style>
+
+    <style name="RadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="buttonTint">@drawable/radio_button_selector</item>
+    </style>
+
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="buttonTint">@drawable/radio_button_selector</item>
+    </style>
+
+    <!-- Text input styles -->
+    <style name="CustomTextInputLayoutTheme" parent="Widget.Design.TextInputLayout">
+        <!-- reference our hint & error styles -->
+        <item name="hintTextAppearance">@style/HintTextSmall</item>
+        <item name="errorTextAppearance">@style/ErrorTextSmall</item>
+        <item name="android:textColor">@color/edittext</item>
+        <item name="android:textColorHint">@color/edittext</item>
+        <item name="colorControlHighlight">@color/edittext</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:padding">5dp</item>
+        <item name="expandedHintEnabled">false</item>
+        <item name="hintAnimationEnabled">false</item>
+
+        <!-- Floating label in true state -->
+        <item name="colorAccent">@color/primaryText</item>
+        <item name="colorControlNormal">@color/edittext</item>
+    </style>
+
+    <!-- Text styles -->
+    <style name="NormalTextStyle" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">@dimen/textsize_medium</item>
+        <item name="android:textColor">@color/primaryText</item>
+    </style>
+
+    <style name="SmallTextStyle" parent="NormalTextStyle">
+        <item name="android:textSize">@dimen/textsize_xlsmall</item>
+    </style>
+
+    <style name="MediumTextStyle" parent="NormalTextStyle">
+        <item name="android:textSize">@dimen/textsize_xxmedium</item>
+    </style>
+
+    <style name="LargeTextStyle" parent="NormalTextStyle">
+        <item name="android:textSize">@dimen/textsize_largexxl</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:textSize">8sp</item>
+    </style>
+
+</resources>
