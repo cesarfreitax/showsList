@@ -9,94 +9,152 @@
     tools:context=".features.showlist.presentation.ShowDetailsActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ctl_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/lnr_fetching"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/txt_fetching"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layoutDirection="ltr"
+                android:text="Carregando"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_largexxl" />
+
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:indeterminateTint="@color/yellow" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ctl_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
             <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
                 android:id="@+id/ypv_player"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:autoPlay="false"/>
+                app:autoPlay="false"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/lnr_show_name_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ypv_player">
-
-            <TextView
-                android:id="@+id/txt_show_name"
+            <LinearLayout
+                android:id="@+id/lnr_show_name_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:fontFamily="@font/montserrat_bolditalic"
-                android:textAlignment="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ypv_player">
+
+                <TextView
+                    android:id="@+id/txt_show_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:fontFamily="@font/montserrat_bolditalic"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_largex"
+                    app:layout_constraintTop_toBottomOf="@id/img_show"
+                    tools:text="Arrow" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/yellow"
+                    tools:text="2 temporadas" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lnr_typeshow_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="4dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/lnr_show_name_container" />
+
+            <LinearLayout
+                android:id="@+id/lnr_rating_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/lnr_typeshow_container">
+
+                <RatingBar
+                    android:id="@+id/rtb_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:progressBackgroundTint="#25FFFFFF"
+                    android:progressTint="@color/yellow"
+                    android:scaleX="0.5"
+                    android:scaleY="0.5"
+                    tools:ignore="SpeakableTextPresentCheck"
+                    tools:rating="3.5" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/textsize_largex"
-                app:layout_constraintTop_toBottomOf="@id/img_show"
-                tools:text="Arrow" />
+                app:layout_constraintTop_toBottomOf="@id/lnr_rating_container"
+                tools:text="Under the Dome is the story of a small town that is suddenly and inexplicably sealed off from the rest of the world by an enormous transparent dome. The town's inhabitants must deal with surviving the post-apocalyptic conditions while searching for answers about the dome, where it came from and if and when it will go away." />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cdv_seasons_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:textColor="@color/yellow"
-                tools:text="2 temporadas" />
-        </LinearLayout>
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/yellow"
+                app:layout_constraintTop_toBottomOf="@id/txt_summary">
 
-        <LinearLayout
-            android:id="@+id/lnr_typeshow_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="4dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lnr_show_name_container" />
+                <Spinner
+                    android:id="@+id/spn_seasons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:theme="@style/spn_default"
+                    app:layout_constraintTop_toBottomOf="@id/txt_summary" />
 
-        <LinearLayout
-            android:id="@+id/lnr_rating_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/lnr_typeshow_container">
+            </androidx.cardview.widget.CardView>
 
-            <RatingBar
-                android:id="@+id/rtb_rating"
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcv_seasons"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:numStars="5"
-                android:progressBackgroundTint="#25FFFFFF"
-                android:progressTint="@color/yellow"
-                android:scaleX="0.5"
-                android:scaleY="0.5"
-                tools:ignore="SpeakableTextPresentCheck"
-                tools:rating="3.5" />
+                android:layout_marginHorizontal="40dp"
+                android:background="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/cdv_seasons_container" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/txt_summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            tools:text="Under the Dome is the story of a small town that is suddenly and inexplicably sealed off from the rest of the world by an enormous transparent dome. The town's inhabitants must deal with surviving the post-apocalyptic conditions while searching for answers about the dome, where it came from and if and when it will go away."
-            android:textColor="@color/white"
-            app:layout_constraintTop_toBottomOf="@id/lnr_rating_container" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rcv_seasons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/txt_summary"
-            android:layout_marginTop="16dp"
-            android:overScrollMode="never"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

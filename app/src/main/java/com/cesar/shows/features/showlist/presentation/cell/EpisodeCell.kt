@@ -19,13 +19,11 @@ import io.github.enicolas.genericadapter.adapter.BaseCell
 import io.github.enicolas.genericadapter.adapter.GenericRecyclerAdapter
 import io.github.enicolas.genericadapter.adapter.GenericRecylerAdapterDelegate
 
-class EpisodeCell(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
-
-    private val binding: EpisodeCellBinding = EpisodeCellBinding.inflate(LayoutInflater.from(context), this, true)
+class EpisodeCell(private val viewbinding: EpisodeCellBinding) : BaseCell(viewbinding.root) {
 
     fun setupCell(episode: EpisodeResponse, context: Context) {
-        binding.txtEpisodeNumber.text = episode.number.toString()
-        binding.imgEpisode.load(episode.image?.medium, context)
-        binding.txtEpisodeTitle.text = episode.name
+        viewbinding.txtEpisodeNumber.text = episode.number.toString()
+        viewbinding.imgEpisode.load(episode.image?.medium, context)
+        viewbinding.txtEpisodeTitle.text = episode.name
     }
 }
