@@ -13,6 +13,7 @@ import android.text.Spanned
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorRes
@@ -26,6 +27,7 @@ import androidx.core.text.toSpanned
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import com.bumptech.glide.Glide
 import com.cesar.shows.R
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -355,4 +357,13 @@ fun Button.enableButton(value: Boolean) {
         else Color.DKGRAY
     )
     this.background = buttonDrawable
+
+}
+
+fun ImageView.load(url: String?, context:Context){
+    Glide.with(context)
+        .load(url?:"")
+        .placeholder(R.drawable.arrow)
+        .error(R.drawable.arrow)
+        .into(this)
 }

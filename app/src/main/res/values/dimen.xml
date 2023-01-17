@@ -12,6 +12,7 @@
     <dimen name="margin_medium">24dp</dimen>
     <dimen name="margin_largex">32dp</dimen>
 
+    <dimen name="textsize_largexxxxl">40sp</dimen>
     <dimen name="textsize_largexxl">24sp</dimen>
     <dimen name="textsize_largexl">22sp</dimen>
     <dimen name="textsize_largex">20sp</dimen>
