@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">shows</string>
+    <string name="details">Details</string>
+
+    <!--  Show List Activity  -->
+    <string name="show_img">Show image</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

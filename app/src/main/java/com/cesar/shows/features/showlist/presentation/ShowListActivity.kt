@@ -1,118 +1,118 @@
 package com.cesar.shows.features.showlist.presentation
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.cesar.shows.core.network.tvmazeapi.RetrofitInstance
+import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ActivityShowlistBinding
-import com.cesar.shows.databinding.ShowCellBinding
-import com.cesar.shows.features.showlist.data.model.ShowResponse
-import com.cesar.shows.features.showlist.presentation.cell.ShowCell
+import com.cesar.shows.databinding.ShowCellV2Binding
+import com.cesar.shows.features.showlist.data.model.show.ShowResponse
+import com.cesar.shows.features.showlist.presentation.cell.ShowCellV2
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import io.github.enicolas.genericadapter.AdapterHolderType
 import io.github.enicolas.genericadapter.adapter.GenericRecyclerAdapter
 import io.github.enicolas.genericadapter.adapter.GenericRecylerAdapterDelegate
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ShowListActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityShowlistBinding
+    private val binding by lazy { ActivityShowlistBinding.inflate(layoutInflater) }
     private var adapter = GenericRecyclerAdapter()
-
-    val item = ShowResponse.Show(
-        _links = ShowResponse.Links(
-            previousepisode = ShowResponse.Previousepisode(
-                href = "https://api.tvmaze.com/episodes/185054"
-            ),
-            self = ShowResponse.Self(
-                href = "dsaokdsaokd"
-            )
-        ),
-        averageRuntime = 60,
-        dvdCountry = null,
-        ended = "no",
-        externals = ShowResponse.Externals(
-            imdb = "124",
-            thetvdb = 1,
-            tvrage = 10
-        ),
-        genres = listOf("Action", "Drama", "Romance"),
-        id = 1,
-        image = ShowResponse.Image(
-            medium = "312321312",
-            original = "434343"
-        ),
-        language = "English",
-        name = "Not Arrow",
-        network = ShowResponse.Network(
-            id = 1,
-            country = ShowResponse.Country(
-                code = "aaa",
-                name = "bbb",
-                timezone = "EN-US"
-            ),
-            name = "teste",
-            officialSite = "sadada"
-        ),
-        officialSite = "wwww...",
-        premiered = "no",
-        rating = ShowResponse.Rating(
-            average = 4.0
-        ),
-        runtime = 1,
-        schedule = ShowResponse.Schedule(
-            days = listOf("1", "2"),
-            time = "312321"
-        ),
-        status = "ok",
-        summary = "blablalbalbalbalblblablablalbalbalbalblablalba",
-        type = "Hero",
-        updated = 1,
-        url = "www.dasojdaisjd.vom",
-        webChannel = null,
-        weight = 10
-    )
-
-    val listItems = listOf(item, item, item, item, item, item)
-
+    private val shows = mutableListOf<ShowResponse>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityShowlistBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-        setupRecyclerView()
+        setContentView(binding.root)
+        fetchData()
     }
 
 
+    private fun fetchData() {
+
+        RetrofitInstance.apiInterface.getShows()
+
+            .enqueue(object : Callback<ArrayList<ShowResponse?>> {
+                override fun onResponse(
+                    call: Call<ArrayList<ShowResponse?>>,
+                    response: Response<ArrayList<ShowResponse?>>
+                ) {
+                    response.body()?.map {
+                        val show = ShowResponse(
+                            id = it?.id,
+                            genres = it?.genres,
+                            image = it?.image,
+                            name = it?.name,
+                            rating = it?.rating,
+                            summary = it?.summary
+                        )
+                        shows.add(show)
+                    }
+                    if (response.body()?.size == shows.size) {
+                        stopFetching()
+                        setupRecyclerView()
+                    }
+                }
+
+                override fun onFailure(call: Call<ArrayList<ShowResponse?>>, t: Throwable) {
+                    stopFetching()
+                    Toast.makeText(this@ShowListActivity, t.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+            })
+    }
+
+    private fun stopFetching() {
+        binding.lnrFetching.toggleVisibility(false)
+        binding.rcvShows.toggleVisibility(true)
+    }
+
     private fun setupRecyclerView() {
-        binding.rcvShows.layoutManager = LinearLayoutManager(this)
+        val layoutManager = FlexboxLayoutManager(this)
+        layoutManager.justifyContent = JustifyContent.CENTER
+        binding.rcvShows.layoutManager = layoutManager
         binding.rcvShows.adapter = adapter
         adapter.delegate = recyclerViewDelegate
-        adapter.snapshot?.snapshotList = listItems
+        adapter.snapshot?.snapshotList = shows
     }
 
 
     private var recyclerViewDelegate =
         object : GenericRecylerAdapterDelegate {
 
-            override fun numberOfRows(adapter: GenericRecyclerAdapter): Int = listItems.size
+            override fun numberOfRows(adapter: GenericRecyclerAdapter): Int = shows.size
 
             override fun registerCellAtPosition(
                 adapter: GenericRecyclerAdapter,
                 position: Int
             ): AdapterHolderType {
                 return AdapterHolderType(
-                    viewBinding = ShowCellBinding::class.java,
-                    clazz = ShowCell::class.java,
-                    reuseIdentifier = 0)
+                    viewBinding = ShowCellV2Binding::class.java,
+                    clazz = ShowCellV2::class.java,
+                    reuseIdentifier = 0
+                )
             }
 
+            @RequiresApi(Build.VERSION_CODES.N)
             override fun cellForPosition(
                 adapter: GenericRecyclerAdapter,
                 cell: RecyclerView.ViewHolder,
                 position: Int
             ) {
-                (cell as ShowCell).let {
-                    val item = listItems[position]
-                    it.setupCell(item = item)
+                (cell as ShowCellV2).let {
+                    val item = shows[position]
+                    it.setupCell(item = item, context = this@ShowListActivity) {
+                        val intent = Intent(this@ShowListActivity, ShowDetailsActivity::class.java)
+                        intent.putExtra("show", item)
+                        startActivity(intent)
+                    }
                 }
             }
         }
