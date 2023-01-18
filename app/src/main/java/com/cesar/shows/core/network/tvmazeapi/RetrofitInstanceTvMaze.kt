@@ -3,7 +3,7 @@ package com.cesar.shows.core.network.tvmazeapi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofitInstance {
+object RetrofitInstanceTvMaze {
 
     private val tvMazeApiUrl by lazy {
         Retrofit.Builder()
@@ -12,7 +12,7 @@ object RetrofitInstance {
             .build()
     }
 
-    val apiInterface by lazy {
+    val apiInterface: ApiInterface by lazy {
         tvMazeApiUrl.create(ApiInterface::class.java)
     }
 }

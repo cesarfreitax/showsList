@@ -4,29 +4,24 @@ import android.R
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cesar.shows.core.network.tvmazeapi.RetrofitInstance
+import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
 import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ActivityShowDetailsBinding
 import com.cesar.shows.databinding.EpisodeCellBinding
-import com.cesar.shows.databinding.SeasonCellBinding
 import com.cesar.shows.features.showlist.data.model.episode.EpisodeResponse
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.data.model.video.VideoResponse
 import com.cesar.shows.features.showlist.presentation.cell.EpisodeCell
 import com.cesar.shows.features.showlist.presentation.cell.GenreCell
-import com.cesar.shows.features.showlist.presentation.cell.SeasonCell
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import io.github.enicolas.genericadapter.AdapterHolderType
@@ -52,11 +47,15 @@ class ShowDetailsActivity : AppCompatActivity() {
         val show = intent.getSerializableExtra("show") as ShowResponse
         binding.txtShowName.text = show.name
         setupGenresCells(show)
-        binding.rtbRating.rating = (show.rating?.average?.div(2))!!.toFloat()
+        if (show.rating?.average != null) {
+            binding.rtbRating.rating = (show.rating?.average?.div(2))!!.toFloat()
+        } else {
+            binding.rtbRating.toggleVisibility(false)
+        }
         binding.txtSummary.text = Html.fromHtml(show.summary, Build.VERSION.SDK_INT)
         lifecycle.addObserver(binding.ypvPlayer)
 
-        RetrofitInstance.apiInterface.getShowEpisodes(show.id.toString())
+        RetrofitInstanceTvMaze.apiInterface.getShowEpisodes(show.id.toString())
             .enqueue(object : Callback<ArrayList<EpisodeResponse?>> {
                 override fun onResponse(
                     call: Call<ArrayList<EpisodeResponse?>>,
@@ -97,7 +96,7 @@ class ShowDetailsActivity : AppCompatActivity() {
                 }
             })
 
-        com.cesar.shows.core.network.youtubeapi.RetrofitInstance.apiInterface.getSpecificTrailer("${show.name} official trailer")
+        com.cesar.shows.core.network.youtubeapi.RetrofitInstanceYoutube.apiInterface.getSpecificTrailer("${show.name} official trailer")
             .enqueue(object : Callback<VideoResponse?> {
                 override fun onResponse(
                     call: Call<VideoResponse?>,
