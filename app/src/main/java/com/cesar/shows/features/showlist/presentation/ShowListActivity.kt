@@ -18,6 +18,7 @@ import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ActivityShowlistBinding
 import com.cesar.shows.databinding.ShowCellV2Binding
 import com.cesar.shows.features.showlist.data.model.search.ShowSearchResponse
+import com.cesar.shows.features.showlist.data.model.show.Image
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.presentation.cell.ShowCellV2
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -29,7 +30,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
 class ShowListActivity : AppCompatActivity() {
 
     private val sharedPreferencesFavs: SharedPreferences by lazy {
@@ -38,73 +38,81 @@ class ShowListActivity : AppCompatActivity() {
             Context.MODE_PRIVATE
         )
     }
-
     private val binding by lazy { ActivityShowlistBinding.inflate(layoutInflater) }
     private var adapter = GenericRecyclerAdapter()
     private val shows = mutableListOf<ShowResponse>()
-    private val showsFiltered = mutableListOf<ShowSearchResponse>()
     private var pageIndex = 0
-    private var isLastIndex = false
     private var showFavorites = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupRecyclerView()
         setupSearchView()
+        setupFavorites()
         fetchData()
+    }
+
+    private fun setupFavorites() {
         binding.imgShowFavorites.setOnClickListener {
             shows.clear()
             showFavorites = !showFavorites
             changeImageIfIsFavorite(showFavorites, binding.imgShowFavorites)
-            startLoading()
+            loading(true)
             val sharedPrefOnlyFavs = sharedPreferencesFavs.all.filter { it.value == true }
             if (showFavorites && sharedPrefOnlyFavs.isNotEmpty()) {
-                sharedPrefOnlyFavs.forEach { show ->
-                    RetrofitInstanceTvMaze.apiInterface.getShowById(show.key.toInt())
-                        .enqueue(object : Callback<ShowResponse?> {
-                            override fun onResponse(
-                                call: Call<ShowResponse?>,
-                                response: Response<ShowResponse?>
-                            ) {
-                                val show = ShowResponse(
-                                    id = response.body()?.id,
-                                    genres = response.body()?.genres,
-                                    image = com.cesar.shows.features.showlist.data.model.show.Image(
-                                        response.body()?.image?.medium.toString(),
-                                        response.body()?.image?.original.toString()
-                                    ),
-                                    name = response.body()?.name,
-                                    summary = response.body()?.summary
-                                )
-                                shows.add(show)
-                                if (shows.size == sharedPrefOnlyFavs.size) {
-                                    setupRecyclerView()
-                                    adapter.notifyDataSetChanged()
-                                    stopLoading()
-                                }
-                            }
-
-                            override fun onFailure(call: Call<ShowResponse?>, t: Throwable) {
-                                stopLoading()
-                                Toast.makeText(
-                                    this@ShowListActivity,
-                                    t.localizedMessage,
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            }
-                        })
-                }
+                fetchOnlyFavorites(sharedPrefOnlyFavs)
             } else if (showFavorites) {
-                binding.lnrEmptyFavorites.toggleVisibility(true)
-                binding.rcvShows.toggleVisibility(false)
-                stopLoading()
+                setupEmptyFavoritesPlaceholder(true)
+                loading(false)
             } else {
-                binding.lnrEmptyFavorites.toggleVisibility(false)
-                binding.rcvShows.toggleVisibility(true)
+                setupEmptyFavoritesPlaceholder(false)
                 fetchData()
             }
 
+        }
+    }
+
+    private fun setupEmptyFavoritesPlaceholder(isEmpty: Boolean) {
+        binding.lnrEmptyFavorites.toggleVisibility(isEmpty)
+        binding.rcvShows.toggleVisibility(!isEmpty)
+    }
+
+    private fun fetchOnlyFavorites(sharedPrefOnlyFavs: Map<String, Any?>) {
+        sharedPrefOnlyFavs.forEach { show ->
+            RetrofitInstanceTvMaze.apiInterface.getShowById(show.key.toInt())
+                .enqueue(object : Callback<ShowResponse?> {
+                    override fun onResponse(
+                        call: Call<ShowResponse?>,
+                        response: Response<ShowResponse?>
+                    ) {
+                        val show = ShowResponse(
+                            id = response.body()?.id,
+                            genres = response.body()?.genres,
+                            image = Image(
+                                response.body()?.image?.medium.toString(),
+                                response.body()?.image?.original.toString()
+                            ),
+                            name = response.body()?.name,
+                            summary = response.body()?.summary
+                        )
+                        shows.add(show)
+                        if (shows.size == sharedPrefOnlyFavs.size) {
+                            setupRecyclerView()
+                            adapter.notifyDataSetChanged()
+                            loading(false)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ShowResponse?>, t: Throwable) {
+                        loading(false)
+                        Toast.makeText(
+                            this@ShowListActivity,
+                            t.localizedMessage,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                })
         }
     }
 
@@ -125,57 +133,7 @@ class ShowListActivity : AppCompatActivity() {
     private fun setupSearchView() {
         binding.srcFilter.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                RetrofitInstanceTvMaze.apiInterface.getShowsBySearch(query.toString())
-                    .enqueue(object : Callback<ArrayList<ShowSearchResponse?>> {
-                        override fun onResponse(
-                            call: Call<ArrayList<ShowSearchResponse?>>,
-                            response: Response<ArrayList<ShowSearchResponse?>>
-                        ) {
-                            shows.clear()
-                            startLoading()
-                            response.body()?.map {
-                                val show = ShowResponse(
-                                    id = it?.show?.id,
-                                    genres = it?.show?.genres,
-                                    image = com.cesar.shows.features.showlist.data.model.show.Image(
-                                        it?.show?.image?.medium.toString(),
-                                        it?.show?.image?.original.toString()
-                                    ),
-                                    name = it?.show?.name,
-                                    summary = it?.show?.summary
-                                )
-                                shows.add(show)
-                            }
-                            setupRecyclerView()
-                            adapter.notifyDataSetChanged()
-                            stopLoading()
-                        }
-
-                        override fun onFailure(
-                            call: Call<ArrayList<ShowSearchResponse?>>,
-                            t: Throwable
-                        ) {
-                            stopLoading()
-                            Toast.makeText(
-                                this@ShowListActivity,
-                                t.localizedMessage,
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                    })
-                // on below line we are checking
-                // if query exist or not.
-//                if (programmingLanguagesList.contains(query)) {
-//                    // if query exist within list we
-//                    // are filtering our list adapter.
-//                    listAdapter.filter.filter(query)
-//                } else {
-//                    // if query is not present we are displaying
-//                    // a toast message as no  data found..
-//                    Toast.makeText(this@MainActivity, "No Language found..", Toast.LENGTH_LONG)
-//                        .show()
-//                }
+                fetchByQuery(query)
                 return false
             }
 
@@ -189,6 +147,47 @@ class ShowListActivity : AppCompatActivity() {
         })
     }
 
+    private fun fetchByQuery(query: String?) {
+        RetrofitInstanceTvMaze.apiInterface.getShowsBySearch(query.toString())
+            .enqueue(object : Callback<ArrayList<ShowSearchResponse?>> {
+                override fun onResponse(
+                    call: Call<ArrayList<ShowSearchResponse?>>,
+                    response: Response<ArrayList<ShowSearchResponse?>>
+                ) {
+                    shows.clear()
+                    loading(true)
+                    response.body()?.map {
+                        val show = ShowResponse(
+                            id = it?.show?.id,
+                            genres = it?.show?.genres,
+                            image = Image(
+                                it?.show?.image?.medium.toString(),
+                                it?.show?.image?.original.toString()
+                            ),
+                            name = it?.show?.name,
+                            summary = it?.show?.summary
+                        )
+                        shows.add(show)
+                    }
+                    setupRecyclerView()
+                    adapter.notifyDataSetChanged()
+                    loading(false)
+                }
+
+                override fun onFailure(
+                    call: Call<ArrayList<ShowSearchResponse?>>,
+                    t: Throwable
+                ) {
+                    loading(false)
+                    Toast.makeText(
+                        this@ShowListActivity,
+                        t.localizedMessage,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            })
+    }
 
     private fun fetchData() {
         RetrofitInstanceTvMaze.apiInterface.getShows(pageIndex)
@@ -210,11 +209,11 @@ class ShowListActivity : AppCompatActivity() {
                         shows.add(show)
                     }
                     adapter.notifyDataSetChanged()
-                    stopLoading()
+                    loading(false)
                 }
 
                 override fun onFailure(call: Call<ArrayList<ShowResponse?>>, t: Throwable) {
-                    stopLoading()
+                    loading(false)
                     Toast.makeText(this@ShowListActivity, t.localizedMessage, Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -222,14 +221,9 @@ class ShowListActivity : AppCompatActivity() {
             })
     }
 
-    private fun stopLoading() {
-        binding.lnrFetching.toggleVisibility(false)
-        binding.rcvShows.toggleVisibility(true)
-    }
-
-    private fun startLoading() {
-        binding.lnrFetching.toggleVisibility(true)
-        binding.rcvShows.toggleVisibility(false)
+    private fun loading(isLoading: Boolean) {
+        binding.lnrFetching.toggleVisibility(isLoading)
+        binding.rcvShows.toggleVisibility(!isLoading)
     }
 
     private fun setupRecyclerView() {
@@ -240,7 +234,6 @@ class ShowListActivity : AppCompatActivity() {
         adapter.delegate = recyclerViewDelegate
         adapter.snapshot?.snapshotList = shows
     }
-
 
     private var recyclerViewDelegate =
         object : GenericRecylerAdapterDelegate {
@@ -272,16 +265,11 @@ class ShowListActivity : AppCompatActivity() {
                         context = this@ShowListActivity,
                         isFavorite = isFavorite,
                         navigate = {
-                            val intent =
-                                Intent(this@ShowListActivity, ShowDetailsActivity::class.java)
-                            intent.putExtra("show", item)
-                            startActivity(intent)
+                            navigateToDetails(item)
                         },
                         favoriteAction = {
-                            val isFavAux =
-                                sharedPreferencesFavs.getBoolean(item.id.toString(), false)
-                            sharedPreferencesFavs.edit().putBoolean(item.id.toString(), !isFavAux)
-                                .apply()
+                            val isFavAux = sharedPreferencesFavs.getBoolean(item.id.toString(), false)
+                            sharedPreferencesFavs.edit().putBoolean(item.id.toString(), !isFavAux).apply()
                             return@setupCell sharedPreferencesFavs.getBoolean(
                                 item.id.toString(),
                                 false
@@ -295,4 +283,11 @@ class ShowListActivity : AppCompatActivity() {
                 }
             }
         }
+
+    private fun navigateToDetails(item: ShowResponse) {
+        val intent =
+            Intent(this@ShowListActivity, ShowDetailsActivity::class.java)
+        intent.putExtra("show", item)
+        startActivity(intent)
+    }
 }
