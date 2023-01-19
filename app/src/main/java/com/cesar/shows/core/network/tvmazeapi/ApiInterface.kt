@@ -14,6 +14,11 @@ interface ApiInterface {
         @Query("page") page: Int
     ): Call<ArrayList<ShowResponse?>>
 
+    @GET("/shows/{id}")
+    fun getShowById(
+        @Path("id") id: Int
+    ): Call<ShowResponse?>
+
     @GET("/search/shows")
     fun getShowsBySearch(
         @Query("q") q: String

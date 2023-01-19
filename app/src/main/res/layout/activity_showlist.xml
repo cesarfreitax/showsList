@@ -11,11 +11,11 @@
         android:id="@+id/lnr_fetching"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:orientation="vertical"
         tools:visibility="gone">
 
         <TextView
@@ -32,51 +32,88 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:indeterminateTint="@color/yellow"/>
+            android:indeterminateTint="@color/yellow" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/img_logo"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/shows_logo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"/>
+        android:src="@drawable/shows_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/img_show_favorites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        android:src="@drawable/ic_star_empty"
+        app:layout_constraintBottom_toBottomOf="@id/cdv_filter_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cdv_filter_container" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cdv_filter_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
-        app:cardCornerRadius="10dp">
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img_logo">
 
         <SearchView
             android:id="@+id/src_filter"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:queryHint="Search any show =)" />
 
     </androidx.cardview.widget.CardView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_marginTop="8dp"
-            android:id="@+id/rcv_shows"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcv_shows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cdv_filter_container"
+        tools:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/lnr_empty_favorites"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/cdv_filter_container"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:text="You don't have any favorite show... sorry!"
+            android:textColor="@color/white"
+            android:textSize="@dimen/textsize_large"
+            android:fontFamily="@font/montserrat_bold"
+            android:textAlignment="center"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="=("
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:textSize="@dimen/textsize_largexxxxl"/>
 
-
-
-
-
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
