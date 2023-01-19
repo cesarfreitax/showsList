@@ -1,24 +1,27 @@
 package com.cesar.shows.features.showlist.presentation
 
+import android.R
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cesar.shows.core.network.tvmazeapi.RetrofitInstance
+import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
+import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ActivityShowDetailsBinding
-import com.cesar.shows.databinding.SeasonCellBinding
+import com.cesar.shows.databinding.EpisodeCellBinding
 import com.cesar.shows.features.showlist.data.model.episode.EpisodeResponse
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.data.model.video.VideoResponse
+import com.cesar.shows.features.showlist.presentation.cell.EpisodeCell
 import com.cesar.shows.features.showlist.presentation.cell.GenreCell
-import com.cesar.shows.features.showlist.presentation.cell.SeasonCell
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import io.github.enicolas.genericadapter.AdapterHolderType
@@ -33,8 +36,9 @@ class ShowDetailsActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityShowDetailsBinding.inflate(layoutInflater) }
     private val episodes = mutableListOf<EpisodeResponse>()
-    private var seasons = mutableSetOf<Int?>()
+    private var seasons = mutableListOf<String?>()
     private var adapter = GenericRecyclerAdapter()
+    private var filteredEpisodes = mutableListOf<EpisodeResponse>()
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +47,15 @@ class ShowDetailsActivity : AppCompatActivity() {
         val show = intent.getSerializableExtra("show") as ShowResponse
         binding.txtShowName.text = show.name
         setupGenresCells(show)
-        binding.rtbRating.rating = (show.rating?.average?.div(2))!!.toFloat()
+        if (show.rating?.average != null) {
+            binding.rtbRating.rating = (show.rating?.average?.div(2))!!.toFloat()
+        } else {
+            binding.rtbRating.toggleVisibility(false)
+        }
         binding.txtSummary.text = Html.fromHtml(show.summary, Build.VERSION.SDK_INT)
         lifecycle.addObserver(binding.ypvPlayer)
 
-        RetrofitInstance.apiInterface.getShowEpisodes(show.id.toString())
+        RetrofitInstanceTvMaze.apiInterface.getShowEpisodes(show.id.toString())
             .enqueue(object : Callback<ArrayList<EpisodeResponse?>> {
                 override fun onResponse(
                     call: Call<ArrayList<EpisodeResponse?>>,
@@ -73,8 +81,13 @@ class ShowDetailsActivity : AppCompatActivity() {
                         episodes.add(episode)
                     }
                     if (episodes.size == response.body()?.size) {
-                        seasons = episodes.map { it.season }.toMutableSet()
-                        setupRecyclerView()
+                        stopFetching()
+                        seasons.add("Selecione a temporada")
+                        val differentSeasons = episodes.map {
+                            "${it.season} Temporada"
+                        }.toMutableSet()
+                        seasons += differentSeasons.toMutableList()
+                        seasonsSpinnerAdapter()
                     }
                 }
 
@@ -83,7 +96,7 @@ class ShowDetailsActivity : AppCompatActivity() {
                 }
             })
 
-        com.cesar.shows.core.network.youtubeapi.RetrofitInstance.apiInterface.getSpecificTrailer("${show.name} official trailer")
+        com.cesar.shows.core.network.youtubeapi.RetrofitInstanceYoutube.apiInterface.getSpecificTrailer("${show.name} official trailer")
             .enqueue(object : Callback<VideoResponse?> {
                 override fun onResponse(
                     call: Call<VideoResponse?>,
@@ -105,25 +118,54 @@ class ShowDetailsActivity : AppCompatActivity() {
 
     }
 
+
+    private fun seasonsSpinnerAdapter() {
+        val arrayAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, seasons.toTypedArray())
+        binding.spnSeasons.adapter = arrayAdapter
+
+        binding.spnSeasons.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val txt = parent?.getChildAt(0) as TextView
+                val currentSeason = txt.text.toString().substring(0,1)
+                if (currentSeason.isDigitsOnly()) {
+                    filteredEpisodes = episodes.filter { it.season == currentSeason.toInt() }.toMutableList()
+                    setupRecyclerView()
+                } else {
+                    filteredEpisodes.clear()
+                    adapter.notifyDataSetChanged()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+    }
+
     private fun setupRecyclerView() {
         binding.rcvSeasons.layoutManager = LinearLayoutManager(this)
         binding.rcvSeasons.adapter = adapter
         adapter.delegate = recyclerViewDelegate
-        adapter.snapshot?.snapshotList = episodes
+        adapter.snapshot?.snapshotList = filteredEpisodes
     }
 
     private var recyclerViewDelegate =
         object : GenericRecylerAdapterDelegate {
 
-            override fun numberOfRows(adapter: GenericRecyclerAdapter): Int = seasons.size
+            override fun numberOfRows(adapter: GenericRecyclerAdapter): Int = filteredEpisodes.size
 
             override fun registerCellAtPosition(
                 adapter: GenericRecyclerAdapter,
                 position: Int
             ): AdapterHolderType {
                 return AdapterHolderType(
-                    viewBinding = SeasonCellBinding::class.java,
-                    clazz = SeasonCell::class.java,
+                    viewBinding = EpisodeCellBinding::class.java,
+                    clazz = EpisodeCell::class.java,
                     reuseIdentifier = 0
                 )
             }
@@ -134,9 +176,9 @@ class ShowDetailsActivity : AppCompatActivity() {
                 cell: RecyclerView.ViewHolder,
                 position: Int
             ) {
-                (cell as SeasonCell).let { c ->
-                    val season = seasons.toMutableList()[position]
-                    c.setupCell("${season.toString()} Temporada", this@ShowDetailsActivity, episodes.filter { it.season == season }.toMutableList())
+                (cell as EpisodeCell).let { c ->
+                    val episode = filteredEpisodes[position]
+                    c.setupCell(episode, this@ShowDetailsActivity)
                 }
             }
 
@@ -154,5 +196,10 @@ class ShowDetailsActivity : AppCompatActivity() {
             genreCell.setupCell(it)
             binding.lnrTypeshowContainer.addView(genreCell)
         }
+    }
+
+    private fun stopFetching() {
+        binding.lnrFetching.toggleVisibility(false)
+        binding.ctlData.toggleVisibility(true)
     }
 }

@@ -4,9 +4,10 @@ import java.io.Serializable
 
 class ShowResponse(
     val id: Int? = 0,
-    val genres: ArrayList<String>? = arrayListOf(),
+    val genres: List<String>? = arrayListOf(),
     val image: Image? = Image(medium = "", original = ""),
     val name: String? = "",
     val rating: Rating? = Rating(average = 0.0),
-    val summary: String? = ""
+    val summary: String? = "",
+    var isFavorite: Boolean? = false
 ) : Serializable

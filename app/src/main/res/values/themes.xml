@@ -257,4 +257,13 @@
         <item name="android:textSize">8sp</item>
     </style>
 
+    <!-- Spinner -->
+    <style name="spn_default">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+
+    </style>
+
 </resources>

@@ -19,4 +19,13 @@
         android:scaleType="centerCrop"
         tools:src="@drawable/arrow" />
 
+    <ImageView
+        android:id="@+id/img_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_star_empty"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="2dp"
+        app:tint="@color/yellow" />
+
 </androidx.cardview.widget.CardView>

@@ -36,16 +36,16 @@ class SeasonCell(private val viewbinding: SeasonCellBinding) : BaseCell(viewbind
         episodes: MutableList<EpisodeResponse>
     ) {
         viewbinding.txtSeasonTitle.text = title
-        setupEpisodesCell(episodes, context)
+//        setupEpisodesCell(episodes, context)
     }
 
-    private fun setupEpisodesCell(episodes: MutableList<EpisodeResponse>, context: Context) {
-        viewbinding.lnrEpisodesContainer.removeAllViews()
-        episodes.forEach { episode ->
-            val episodeCell = EpisodeCell(context, null)
-            episodeCell.setupCell(episode, context)
-            viewbinding.lnrEpisodesContainer.addView(episodeCell)
-        }
-    }
+//    private fun setupEpisodesCell(episodes: MutableList<EpisodeResponse>, context: Context) {
+//        viewbinding.lnrEpisodesContainer.removeAllViews()
+//        episodes.forEach { episode ->
+//            val episodeCell = EpisodeCell(context, null)
+//            episodeCell.setupCell(episode, context)
+//            viewbinding.lnrEpisodesContainer.addView(episodeCell)
+//        }
+//    }
 
 }
