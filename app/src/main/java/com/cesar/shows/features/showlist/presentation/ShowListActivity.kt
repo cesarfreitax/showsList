@@ -1,8 +1,10 @@
 package com.cesar.shows.features.showlist.presentation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.widget.ImageView
@@ -11,6 +13,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cesar.shows.R
 import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
@@ -21,6 +24,7 @@ import com.cesar.shows.features.showlist.data.model.search.ShowSearchResponse
 import com.cesar.shows.features.showlist.data.model.show.Image
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.presentation.cell.ShowCellV2
+import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import io.github.enicolas.genericadapter.AdapterHolderType
@@ -29,6 +33,7 @@ import io.github.enicolas.genericadapter.adapter.GenericRecylerAdapterDelegate
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class ShowListActivity : AppCompatActivity() {
 
@@ -43,6 +48,7 @@ class ShowListActivity : AppCompatActivity() {
     private val shows = mutableListOf<ShowResponse>()
     private var pageIndex = 0
     private var showFavorites = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -81,6 +87,7 @@ class ShowListActivity : AppCompatActivity() {
         sharedPrefOnlyFavs.forEach { show ->
             RetrofitInstanceTvMaze.apiInterface.getShowById(show.key.toInt())
                 .enqueue(object : Callback<ShowResponse?> {
+                    @SuppressLint("NotifyDataSetChanged")
                     override fun onResponse(
                         call: Call<ShowResponse?>,
                         response: Response<ShowResponse?>
@@ -150,6 +157,7 @@ class ShowListActivity : AppCompatActivity() {
     private fun fetchByQuery(query: String?) {
         RetrofitInstanceTvMaze.apiInterface.getShowsBySearch(query.toString())
             .enqueue(object : Callback<ArrayList<ShowSearchResponse?>> {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onResponse(
                     call: Call<ArrayList<ShowSearchResponse?>>,
                     response: Response<ArrayList<ShowSearchResponse?>>
@@ -192,6 +200,7 @@ class ShowListActivity : AppCompatActivity() {
     private fun fetchData() {
         RetrofitInstanceTvMaze.apiInterface.getShows(pageIndex)
             .enqueue(object : Callback<ArrayList<ShowResponse?>> {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onResponse(
                     call: Call<ArrayList<ShowResponse?>>,
                     response: Response<ArrayList<ShowResponse?>>
@@ -228,7 +237,11 @@ class ShowListActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         val layoutManager = FlexboxLayoutManager(this)
-        layoutManager.justifyContent = JustifyContent.CENTER
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            layoutManager.justifyContent = JustifyContent.CENTER
+        } else {
+            layoutManager.justifyContent = JustifyContent.FLEX_START
+        }
         binding.rcvShows.layoutManager = layoutManager
         binding.rcvShows.adapter = adapter
         adapter.delegate = recyclerViewDelegate
