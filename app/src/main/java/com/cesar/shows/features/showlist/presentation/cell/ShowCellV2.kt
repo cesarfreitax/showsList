@@ -5,15 +5,18 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.cesar.shows.R
 import com.cesar.shows.core.utils.load
+import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ShowCellV2Binding
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import io.github.enicolas.genericadapter.adapter.BaseCell
 
 class ShowCellV2(private val viewbinding: ShowCellV2Binding) : BaseCell(viewbinding.root) {
 
-    fun setupCell(item: ShowResponse, context: Context, isFavorite: Boolean = false, navigate: () -> Unit = {}, favoriteAction: () -> Boolean) {
+    fun setupCell(item: ShowResponse, context: Context, isFavorite: Boolean = false, navigate: () -> Unit = {}, favoriteAction: () -> Boolean = {false}, canFavorite: Boolean? = true) {
         setupCellView(item, context)
         navigateToDetails(navigate)
+
+        viewbinding.imgFavorite.toggleVisibility(canFavorite!!)
 
         val iconFavorite = viewbinding.imgFavorite
         changeImageIfIsFavorite(isFavorite, iconFavorite, context)

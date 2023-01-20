@@ -363,7 +363,7 @@ fun Button.enableButton(value: Boolean) {
 fun ImageView.load(url: String?, context:Context){
     Glide.with(context)
         .load(url?:"")
-        .placeholder(R.drawable.arrow)
-        .error(R.drawable.arrow)
+        .placeholder(R.drawable.loading_image)
+        .error(R.drawable.no_image)
         .into(this)
 }

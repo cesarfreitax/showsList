@@ -8,6 +8,5 @@ class ShowResponse(
     val image: Image? = Image(medium = "", original = ""),
     val name: String? = "",
     val rating: Rating? = Rating(average = 0.0),
-    val summary: String? = "",
-    var isFavorite: Boolean? = false
+    val summary: String? = ""
 ) : Serializable
