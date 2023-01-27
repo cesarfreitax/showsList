@@ -6,6 +6,9 @@ ____
  *Develop an application to list TV series using the TVMaze API. This is the API URL: https://www.tvmaze.com/api*
 ____
 
+![splash](https://user-images.githubusercontent.com/96268732/215097385-61560b6f-0fd0-436b-a8e8-5bf05b46e3b8.gif)
+____
+
 #### ⚙️ Dependencies:
 
 • [Android Youtube Player](https://github.com/PierfrancescoSoffritti/android-youtube-player)
