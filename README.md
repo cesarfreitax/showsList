@@ -7,7 +7,11 @@ ____
 ____
 
 #### Features:
-- View a list of shows provided by the API
+- View a list of shows provided by the API.
+- Search for a specific show.
+- Select a specific show for details (Example: name, genre, summary, episodes etc).
+- Create a list of favorite shows.
+
 ____
 
 <img width="300" src="https://user-images.githubusercontent.com/96268732/215097385-61560b6f-0fd0-436b-a8e8-5bf05b46e3b8.gif">
