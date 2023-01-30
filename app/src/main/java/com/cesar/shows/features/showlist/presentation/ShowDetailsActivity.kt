@@ -9,18 +9,22 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.annotation.RequiresApi
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
+import com.cesar.shows.core.network.youtubeapi.RetrofitInstanceYoutube
 import com.cesar.shows.core.utils.toggleVisibility
 import com.cesar.shows.databinding.ActivityShowDetailsBinding
 import com.cesar.shows.databinding.CastCellBinding
 import com.cesar.shows.databinding.EpisodeCellBinding
-import com.cesar.shows.features.showlist.data.model.cast.*
+import com.cesar.shows.features.showlist.data.model.cast.Character
+import com.cesar.shows.features.showlist.data.model.cast.Person
+import com.cesar.shows.features.showlist.data.model.cast.ShowCastResponse
 import com.cesar.shows.features.showlist.data.model.episode.EpisodeResponse
+import com.cesar.shows.features.showlist.data.model.show.Rating
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.data.model.video.VideoResponse
 import com.cesar.shows.features.showlist.presentation.cell.CastCell
@@ -42,67 +46,61 @@ class ShowDetailsActivity : AppCompatActivity() {
     private val episodes = mutableListOf<EpisodeResponse>()
     private var seasons = mutableListOf<String?>()
     private var showCastList = mutableListOf<ShowCastResponse>()
-    private var adapter = GenericRecyclerAdapter()
+    private var adapterEpisodes = GenericRecyclerAdapter()
     private var adapterCast = GenericRecyclerAdapter()
     private var filteredEpisodes = mutableListOf<EpisodeResponse>()
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         val show = intent.getSerializableExtra("show") as ShowResponse
         binding.txtShowName.text = show.name
+        setupViews(show, show.rating)
+        fetchCast(show)
+        fetchEpisodes(show)
+        fetchTrailer(show)
+    }
+
+    private fun setupViews(
+        show: ShowResponse,
+        rating: Rating?
+    ) {
         setupGenresCells(show)
         if (show.rating?.average != null) {
-            binding.rtbRating.rating = (show.rating.average.div(2)).toFloat()
+            binding.rtbRating.rating = (rating?.average?.div(2))!!.toFloat()
         } else {
             binding.rtbRating.toggleVisibility(false)
         }
         binding.txtSummary.text = Html.fromHtml(show.summary, Build.VERSION.SDK_INT)
+    }
+
+    private fun fetchTrailer(show: ShowResponse) {
         lifecycle.addObserver(binding.ypvPlayer)
 
-        RetrofitInstanceTvMaze.apiInterface.getCastByShowId(show.id.toString().toInt())
-            .enqueue(object : Callback<ArrayList<ShowCastResponse?>> {
+        RetrofitInstanceYoutube.apiInterface.getSpecificTrailer(
+            "${show.name} official trailer"
+        )
+            .enqueue(object : Callback<VideoResponse?> {
                 override fun onResponse(
-                    call: Call<ArrayList<ShowCastResponse?>>,
-                    response: Response<ArrayList<ShowCastResponse?>>
+                    call: Call<VideoResponse?>,
+                    response: Response<VideoResponse?>
                 ) {
-                    response.body()?.map { cast ->
-                        val person = ShowCastResponse(
-                            person = Person(
-                                id = cast?.person?.id,
-                                url = cast?.person?.url,
-                                name = cast?.person?.name,
-                                country = cast?.person?.country,
-                                birthday = cast?.person?.birthday,
-                                deathday = cast?.person?.deathday,
-                                gender = cast?.person?.gender,
-                                image = cast?.person?.image,
-                                updated = cast?.person?.updated,
-                                _links = cast?.person?._links
-                            ),
-                            character = Character(
-                                id = cast?.character?.id,
-                                url = cast?.character?.url,
-                                image = cast?.character?.image,
-                                name = cast?.character?.name,
-                                _links = cast?.character?._links
-                            ),
-                            self = cast?.self,
-                            voice = cast?.voice
-                        )
-                        showCastList.add(person)
-                        if (response.body()?.size == showCastList.size) {
-                            setupRecyclerViewCast()
+                    binding.ypvPlayer.addYouTubePlayerListener(object :
+                        AbstractYouTubePlayerListener() {
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            val videoId = response.body()?.items?.first()?.id?.videoId.toString()
+                            youTubePlayer.cueVideo(videoId, 0f)
                         }
-                    }
+                    })
+
                 }
 
-                override fun onFailure(call: Call<ArrayList<ShowCastResponse?>>, t: Throwable) {
-                    TODO("Not yet implemented")
+                override fun onFailure(call: Call<VideoResponse?>, t: Throwable) {
                 }
             })
+    }
 
+    private fun fetchEpisodes(show: ShowResponse) {
         RetrofitInstanceTvMaze.apiInterface.getShowEpisodes(show.id.toString())
             .enqueue(object : Callback<ArrayList<EpisodeResponse?>> {
                 override fun onResponse(
@@ -143,30 +141,55 @@ class ShowDetailsActivity : AppCompatActivity() {
                     TODO("Not yet implemented")
                 }
             })
+    }
 
-        com.cesar.shows.core.network.youtubeapi.RetrofitInstanceYoutube.apiInterface.getSpecificTrailer(
-            "${show.name} official trailer"
-        )
-            .enqueue(object : Callback<VideoResponse?> {
+    private fun fetchCast(show: ShowResponse) {
+        RetrofitInstanceTvMaze.apiInterface.getCastByShowId(show.id.toString().toInt())
+            .enqueue(object : Callback<ArrayList<ShowCastResponse?>> {
                 override fun onResponse(
-                    call: Call<VideoResponse?>,
-                    response: Response<VideoResponse?>
+                    call: Call<ArrayList<ShowCastResponse?>>,
+                    response: Response<ArrayList<ShowCastResponse?>>
                 ) {
-                    binding.ypvPlayer.addYouTubePlayerListener(object :
-                        AbstractYouTubePlayerListener() {
-                        override fun onReady(youTubePlayer: YouTubePlayer) {
-                            val videoId = response.body()?.items?.first()?.id?.videoId.toString()
-                            youTubePlayer.cueVideo(videoId, 0f)
+                    response.body()?.map { cast ->
+                        val person = ShowCastResponse(
+                            person = Person(
+                                id = cast?.person?.id,
+                                url = cast?.person?.url,
+                                name = cast?.person?.name,
+                                country = cast?.person?.country,
+                                birthday = cast?.person?.birthday,
+                                deathday = cast?.person?.deathday,
+                                gender = cast?.person?.gender,
+                                image = cast?.person?.image,
+                                updated = cast?.person?.updated,
+                                _links = cast?.person?._links
+                            ),
+                            character = Character(
+                                id = cast?.character?.id,
+                                url = cast?.character?.url,
+                                image = cast?.character?.image,
+                                name = cast?.character?.name,
+                                _links = cast?.character?._links
+                            ),
+                            self = cast?.self,
+                            voice = cast?.voice
+                        )
+                        showCastList.add(person)
+                        if (response.body()?.size == showCastList.size) {
+                            setupRecyclerViewCast()
                         }
-                    })
-
+                    }
                 }
 
-                override fun onFailure(call: Call<VideoResponse?>, t: Throwable) {
+                override fun onFailure(call: Call<ArrayList<ShowCastResponse?>>, t: Throwable) {
+                    Toast.makeText(
+                        this@ShowDetailsActivity,
+                        t.localizedMessage,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
                 }
             })
-
-
     }
 
     private fun seasonsSpinnerAdapter() {
@@ -188,22 +211,20 @@ class ShowDetailsActivity : AppCompatActivity() {
                     setupRecyclerView()
                 } else {
                     filteredEpisodes.clear()
-                    adapter.notifyDataSetChanged()
+                    adapterEpisodes.notifyDataSetChanged()
                 }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
     private fun setupRecyclerView() {
         binding.rcvSeasons.layoutManager = LinearLayoutManager(this)
-        binding.rcvSeasons.adapter = adapter
-        adapter.delegate = recyclerViewDelegate
-        adapter.snapshot?.snapshotList = filteredEpisodes
+        binding.rcvSeasons.adapter = adapterEpisodes
+        binding.rcvSeasons.isNestedScrollingEnabled = false
+        adapterEpisodes.delegate = recyclerViewDelegate
+        adapterEpisodes.snapshot?.snapshotList = filteredEpisodes
     }
 
     private fun setupRecyclerViewCast() {
@@ -229,7 +250,6 @@ class ShowDetailsActivity : AppCompatActivity() {
                 )
             }
 
-            @RequiresApi(Build.VERSION_CODES.N)
             override fun cellForPosition(
                 adapter: GenericRecyclerAdapter,
                 cell: RecyclerView.ViewHolder,
@@ -264,7 +284,6 @@ class ShowDetailsActivity : AppCompatActivity() {
                 )
             }
 
-            @RequiresApi(Build.VERSION_CODES.N)
             override fun cellForPosition(
                 adapter: GenericRecyclerAdapter,
                 cell: RecyclerView.ViewHolder,
@@ -285,7 +304,7 @@ class ShowDetailsActivity : AppCompatActivity() {
 
     private fun navigateToDetails(showCast: ShowCastResponse) {
         val intent = Intent(this@ShowDetailsActivity, PersonDetailsActivity::class.java)
-        intent.putExtra("person", showCast?.person)
+        intent.putExtra("person", showCast.person)
         startActivity(intent)
     }
 

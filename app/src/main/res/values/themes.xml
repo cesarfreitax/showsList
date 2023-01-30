@@ -1,10 +1,5 @@
 <resources>
 
-    <!-- Fast SplashScreen -->
-    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/ic_launcher_background</item>
-    </style>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
@@ -15,6 +10,9 @@
         <item name="android:popupMenuStyle">@style/customListPopUp</item>
         <item name="android:textAppearanceSmallPopupMenu">@style/customListPopUp</item>
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
+
+        <item name="android:windowBackground">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenBackground">@color/background</item>
     </style>
 
     <style name="MyDatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
@@ -26,12 +24,10 @@
         <item name="android:dayOfWeekTextAppearance">@color/black</item>
     </style>
 
-
     <style name="customListPopUp" parent="android:Widget.Holo.ListPopupWindow">
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textAppearanceButton">@color/colorPrimaryDark</item>
     </style>
-
 
     <!-- No Action Bar -->
     <style name="AppTheme.NoActionBar">

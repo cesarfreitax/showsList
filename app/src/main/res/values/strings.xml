@@ -6,5 +6,12 @@
     <string name="show_img">Show image</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="person_alive">Alive</string>
+    <string name="person_dead">Dead</string>
+    <string name="show_favorite">Favorite</string>
+    <string name="loading">Carregando</string>
+    <string name="logo">Logo</string>
+    <string name="warning_message_empty_shows">You don\'t have any favorite show... sorry!</string>
+    <string name="sad_face">=(</string>
 
 </resources>
