@@ -1,34 +1,24 @@
 package com.cesar.shows.features.showlist.presentation
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cesar.shows.R
 import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
 import com.cesar.shows.core.utils.load
 import com.cesar.shows.databinding.ActivityPersonDetailsBinding
-import com.cesar.shows.databinding.CastCellBinding
 import com.cesar.shows.databinding.ShowCellV2Binding
 import com.cesar.shows.features.showlist.data.model.cast.Person
-import com.cesar.shows.features.showlist.data.model.cast.ShowCastResponse
-import com.cesar.shows.features.showlist.data.model.participations.Image
 import com.cesar.shows.features.showlist.data.model.participations.ParticipationsResponse
 import com.cesar.shows.features.showlist.data.model.show.Rating
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
-import com.cesar.shows.features.showlist.presentation.cell.CastCell
 import com.cesar.shows.features.showlist.presentation.cell.ShowCellV2
-import com.google.android.flexbox.AlignContent
-import com.google.android.flexbox.AlignItems
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
 import io.github.enicolas.genericadapter.AdapterHolderType
 import io.github.enicolas.genericadapter.adapter.GenericRecyclerAdapter
 import io.github.enicolas.genericadapter.adapter.GenericRecylerAdapterDelegate
-import kotlinx.android.synthetic.main.activity_person_details.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -39,6 +29,7 @@ class PersonDetailsActivity : AppCompatActivity() {
     private var adapter = GenericRecyclerAdapter()
     private val shows = mutableListOf<ShowResponse>()
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -48,7 +39,7 @@ class PersonDetailsActivity : AppCompatActivity() {
         binding.txtPersonName.text = person.name ?: ""
         binding.txtPersonCountry.text = person.country?.name ?: ""
         val formattedBirthday = person.birthday?.split("-")
-        var monthString: String
+        val monthString: String
         if (formattedBirthday?.get(1) == "01") {
             monthString = "Jan"
         } else if (formattedBirthday?.get(2) == "02") {
@@ -80,11 +71,11 @@ class PersonDetailsActivity : AppCompatActivity() {
         if (person.deathday == null) {
             binding.cdvIsAliveBorder.setCardBackgroundColor(resources.getColor(R.color.green))
             binding.txtIsalive.setTextColor(resources.getColor(R.color.green))
-            binding.txtIsalive.text = "Alive"
+            binding.txtIsalive.text = getString(R.string.person_alive)
         } else {
             binding.cdvIsAliveBorder.setCardBackgroundColor(resources.getColor(R.color.neutral5))
             binding.txtIsalive.setTextColor(resources.getColor(R.color.neutral5))
-            binding.txtIsalive.text = "Dead"
+            binding.txtIsalive.text = getString(R.string.person_dead)
         }
 
         RetrofitInstanceTvMaze.apiInterface.getShowsByPersonId(person.id!!.toInt())
@@ -123,8 +114,7 @@ class PersonDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        val layoutManager = FlexboxLayoutManager(this)
-        layoutManager.justifyContent = JustifyContent.FLEX_START
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.rcvShows.layoutManager = layoutManager
         binding.rcvShows.adapter = adapter
         adapter.delegate = recyclerViewDelegate
@@ -147,7 +137,6 @@ class PersonDetailsActivity : AppCompatActivity() {
                 )
             }
 
-            @RequiresApi(Build.VERSION_CODES.N)
             override fun cellForPosition(
                 adapter: GenericRecyclerAdapter,
                 cell: RecyclerView.ViewHolder,

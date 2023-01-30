@@ -12,15 +12,25 @@ import io.github.enicolas.genericadapter.adapter.BaseCell
 
 class ShowCellV2(private val viewbinding: ShowCellV2Binding) : BaseCell(viewbinding.root) {
 
-    fun setupCell(item: ShowResponse, context: Context, isFavorite: Boolean = false, navigate: () -> Unit = {}, favoriteAction: () -> Boolean = {false}, canFavorite: Boolean? = true) {
-        setupCellView(item, context)
-        navigateToDetails(navigate)
+    private val iconFavorite = viewbinding.imgFavorite
 
-        viewbinding.imgFavorite.toggleVisibility(canFavorite!!)
+    fun setupCell(
+        item: ShowResponse,
+        context: Context,
+        isFavorite: Boolean = false,
+        navigate: () -> Unit = {},
+        favoriteAction: () -> Boolean = {false},
+        canFavorite: Boolean? = true
+    ) {
+        setupCellView(item, context, item.id == 0, canFavorite!!, isFavorite)
+        navigateToDetails(navigate, item.id == 0)
+        setupCellFavorite(favoriteAction, context)
+    }
 
-        val iconFavorite = viewbinding.imgFavorite
-        changeImageIfIsFavorite(isFavorite, iconFavorite, context)
-
+    private fun setupCellFavorite(
+        favoriteAction: () -> Boolean,
+        context: Context
+    ) {
         iconFavorite.setOnClickListener {
             val boolean = favoriteAction()
             changeImageIfIsFavorite(boolean, iconFavorite, context)
@@ -41,16 +51,26 @@ class ShowCellV2(private val viewbinding: ShowCellV2Binding) : BaseCell(viewbind
         }
     }
 
-    private fun navigateToDetails(navigate: () -> Unit) {
+    private fun navigateToDetails(navigate: () -> Unit, isEmpty: Boolean) {
         viewbinding.imgShow.setOnClickListener {
-            navigate()
+            if (!isEmpty) navigate()
         }
     }
 
     private fun setupCellView(
         item: ShowResponse,
-        context: Context
+        context: Context,
+        isEmpty: Boolean,
+        canFavorite: Boolean,
+        isFavorite: Boolean
     ) {
-        viewbinding.imgShow.load(item.image?.medium, context)
+        if (isEmpty) {
+            viewbinding.imgShow.setImageResource(R.drawable.background_empty_show)
+            viewbinding.cdvShowBorder.setCardBackgroundColor(viewbinding.root.context.getColor(R.color.background))
+        } else {
+            viewbinding.imgShow.load(item.image?.medium, context)
+        }
+        viewbinding.imgFavorite.toggleVisibility(canFavorite)
+        changeImageIfIsFavorite(isFavorite, iconFavorite, context)
     }
 }

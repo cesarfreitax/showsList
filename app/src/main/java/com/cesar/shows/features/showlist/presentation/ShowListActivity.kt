@@ -4,16 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cesar.shows.R
 import com.cesar.shows.core.network.tvmazeapi.RetrofitInstanceTvMaze
@@ -22,9 +18,9 @@ import com.cesar.shows.databinding.ActivityShowlistBinding
 import com.cesar.shows.databinding.ShowCellV2Binding
 import com.cesar.shows.features.showlist.data.model.search.ShowSearchResponse
 import com.cesar.shows.features.showlist.data.model.show.Image
+import com.cesar.shows.features.showlist.data.model.show.Rating
 import com.cesar.shows.features.showlist.data.model.show.ShowResponse
 import com.cesar.shows.features.showlist.presentation.cell.ShowCellV2
-import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import io.github.enicolas.genericadapter.AdapterHolderType
@@ -55,7 +51,29 @@ class ShowListActivity : AppCompatActivity() {
         setupRecyclerView()
         setupSearchView()
         setupFavorites()
+        setupHeaderVisibility()
+        setupLogoClick()
         fetchData()
+    }
+
+    private fun setupLogoClick() {
+        binding.imgLogo.setOnClickListener {
+            binding.rcvShows.scrollToPosition(0)
+        }
+    }
+
+    private fun setupHeaderVisibility() {
+        binding.rcvShows.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            val x = scrollY - oldScrollY
+
+            if (x > 100) {
+                binding.ctlHeader.toggleVisibility(false)
+            }
+
+            if (x < -100) {
+                binding.ctlHeader.toggleVisibility(true)
+            }
+        }
     }
 
     private fun setupFavorites() {
@@ -72,7 +90,7 @@ class ShowListActivity : AppCompatActivity() {
                 loading(false)
             } else {
                 setupEmptyFavoritesPlaceholder(false)
-                fetchData()
+                fetchData(true)
             }
 
         }
@@ -100,10 +118,12 @@ class ShowListActivity : AppCompatActivity() {
                                 response.body()?.image?.original.toString()
                             ),
                             name = response.body()?.name,
-                            summary = response.body()?.summary
+                            summary = response.body()?.summary,
+                            rating = Rating(response.body()?.rating!!.average)
                         )
                         shows.add(show)
                         if (shows.size == sharedPrefOnlyFavs.size) {
+                            layoutCompleter()
                             setupRecyclerView()
                             adapter.notifyDataSetChanged()
                             loading(false)
@@ -140,6 +160,7 @@ class ShowListActivity : AppCompatActivity() {
     private fun setupSearchView() {
         binding.srcFilter.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                layoutCompleter()
                 fetchByQuery(query)
                 return false
             }
@@ -165,6 +186,10 @@ class ShowListActivity : AppCompatActivity() {
                     shows.clear()
                     loading(true)
                     response.body()?.map {
+                        var average = 3.0
+                        if (it?.show?.rating?.average != null) {
+                            average = it.show.rating.average.toString().toDouble()
+                        }
                         val show = ShowResponse(
                             id = it?.show?.id,
                             genres = it?.show?.genres,
@@ -173,10 +198,12 @@ class ShowListActivity : AppCompatActivity() {
                                 it?.show?.image?.original.toString()
                             ),
                             name = it?.show?.name,
+                            rating = Rating(average),
                             summary = it?.show?.summary
                         )
                         shows.add(show)
                     }
+                    layoutCompleter()
                     setupRecyclerView()
                     adapter.notifyDataSetChanged()
                     loading(false)
@@ -197,7 +224,16 @@ class ShowListActivity : AppCompatActivity() {
             })
     }
 
-    private fun fetchData() {
+    private fun layoutCompleter() {
+        val diff = shows.size % 3
+        if (diff != 0) {
+            for (i in 0..diff) {
+                shows.add(ShowResponse())
+            }
+        }
+    }
+
+    private fun fetchData(clear: Boolean = true) {
         RetrofitInstanceTvMaze.apiInterface.getShows(pageIndex)
             .enqueue(object : Callback<ArrayList<ShowResponse?>> {
                 @SuppressLint("NotifyDataSetChanged")
@@ -205,7 +241,7 @@ class ShowListActivity : AppCompatActivity() {
                     call: Call<ArrayList<ShowResponse?>>,
                     response: Response<ArrayList<ShowResponse?>>
                 ) {
-                    shows.clear()
+                    if (clear) { shows.clear() }
                     response.body()?.map {
                         val show = ShowResponse(
                             id = it?.id,
@@ -237,11 +273,7 @@ class ShowListActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         val layoutManager = FlexboxLayoutManager(this)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            layoutManager.justifyContent = JustifyContent.CENTER
-        } else {
-            layoutManager.justifyContent = JustifyContent.FLEX_START
-        }
+        layoutManager.justifyContent = JustifyContent.CENTER
         binding.rcvShows.layoutManager = layoutManager
         binding.rcvShows.adapter = adapter
         adapter.delegate = recyclerViewDelegate
@@ -264,7 +296,6 @@ class ShowListActivity : AppCompatActivity() {
                 )
             }
 
-            @RequiresApi(Build.VERSION_CODES.N)
             override fun cellForPosition(
                 adapter: GenericRecyclerAdapter,
                 cell: RecyclerView.ViewHolder,
@@ -273,12 +304,14 @@ class ShowListActivity : AppCompatActivity() {
                 (cell as ShowCellV2).let {
                     val item = shows[position]
                     val isFavorite = sharedPreferencesFavs.getBoolean(item.id.toString(), false)
+                    val emptyShow = item.id == 0
                     it.setupCell(
+                        canFavorite = !emptyShow,
                         item = item,
                         context = this@ShowListActivity,
                         isFavorite = isFavorite,
                         navigate = {
-                            navigateToDetails(item)
+                            if (item.id != null) navigateToDetails(item)
                         },
                         favoriteAction = {
                             val isFavAux = sharedPreferencesFavs.getBoolean(item.id.toString(), false)
@@ -291,7 +324,7 @@ class ShowListActivity : AppCompatActivity() {
                     if (position == (shows.size - 1) && position > 200) {
                         pageIndex++
                         binding.lnrFetching.toggleVisibility(true)
-                        fetchData()
+                        fetchData(clear = false)
                     }
                 }
             }
