@@ -2,6 +2,8 @@ package com.cesar.shows.features.showlist.presentation
 
 import android.R
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -77,8 +79,13 @@ class ShowDetailsActivity : AppCompatActivity() {
     private fun fetchTrailer(show: ShowResponse) {
         lifecycle.addObserver(binding.ypvPlayer)
 
+        val ai: ApplicationInfo = applicationContext.packageManager
+            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
+        val youtubeApiKey = ai.metaData["youtubeApiKey"].toString()
+
         RetrofitInstanceYoutube.apiInterface.getSpecificTrailer(
-            "${show.name} official trailer"
+            "${show.name} official trailer",
+            key = youtubeApiKey
         )
             .enqueue(object : Callback<VideoResponse?> {
                 override fun onResponse(

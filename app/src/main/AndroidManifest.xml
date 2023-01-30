@@ -41,6 +41,11 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <meta-data
+            android:name="youtubeApiKey"
+            android:value="${YOUTUBE_API_KEY}"/>
+
     </application>
 
 </manifest>
