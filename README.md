@@ -14,9 +14,6 @@ ____
 
 ____
 
-<img width="300" src="https://user-images.githubusercontent.com/96268732/215097385-61560b6f-0fd0-436b-a8e8-5bf05b46e3b8.gif">
-____
-
 #### ⚙️ Dependencies:
 
 • [Android Youtube Player](https://github.com/PierfrancescoSoffritti/android-youtube-player)
@@ -28,3 +25,6 @@ ____
 • [Gson](https://github.com/google/gson)
 
 • [Gson-converter](https://github.com/square/retrofit/tree/master/retrofit-converters/gson)
+____
+
+<img width="300" src="https://user-images.githubusercontent.com/96268732/215097385-61560b6f-0fd0-436b-a8e8-5bf05b46e3b8.gif">
